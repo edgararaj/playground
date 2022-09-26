@@ -1,0 +1,37 @@
+prj_name = "playground"
+
+def compile():
+    """bat
+        clang++ {compiler_flags} -o {prj_name}.exe {src_dir}/main.cpp
+    """
+    return not error_code
+
+debug = "debug" in argv
+if debug:
+    argv.remove("debug")
+
+compiler_flags = f"--std=c++2a -Wall -Wno-logical-op-parentheses -Wpedantic -Wshadow {' '.join(argv)}"
+src_dir = f"{script_dir}/src/"
+
+if debug:
+    compiler_flags += " -O0 -g"
+    build_dir = f"{script_dir}/build_debug/"
+    print("Building debug version...")
+else:
+    compiler_flags += " -O2"
+    build_dir = f"{script_dir}/build_release/"
+
+if exists(build_dir):
+    if not rmdir(build_dir):
+        print_error("Failed to clear build directory!")
+        exit(1)
+
+if not exists(build_dir):
+    mkdir(build_dir)
+
+    with cd(build_dir):
+        print(f"Compiling with: {compiler_flags}")
+        if not compile():
+            print_error("Failed to compile!")
+        else:
+            print_success("Compiled sucessfully")
